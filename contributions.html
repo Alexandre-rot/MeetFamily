@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeetFamily - Contributions</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Polices Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Styles spécifiques à la page contributions */
+        .page-title {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .contributions-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin: 1rem auto;
+            max-width: 1000px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .contribution-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .contribution-total {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            text-align: center;
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background-color: rgba(76, 175, 80, 0.1);
+            border-radius: var(--border-radius);
+        }
+        
+        .members-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+        
+        .members-table th,
+        .members-table td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        .members-table th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .members-table tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        .members-table tr:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .new-contribution-btn {
+            display: block;
+            margin: 0 auto 2rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête avec photo de profil et logo -->
+    <header>
+        <div class="profile-area">
+            <img src="" alt="Photo de profil" class="profile-pic" id="profile-pic">
+        </div>
+        <div class="logo-area">
+            <h1>MeetFamily</h1>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+        <h1 class="page-title">Gestion des Contributions</h1>
+        
+        <div class="contributions-container">
+            <button class="btn new-contribution-btn" id="create-contribution-btn">
+                <i class="fas fa-plus-circle"></i> Nouvelle contribution
+            </button>
+            
+            <div id="contributions-list">
+                <!-- Les contributions seront ajoutées ici dynamiquement -->
+            </div>
+        </div>
+    </main>
+    
+    <!-- Formulaire de contribution (modal) -->
+    <div class="form-section" id="contribution-form-section" style="display: none;">
+        <div class="form-container">
+            <div class="form-header">
+                <h2 id="form-title">Nouvelle Contribution</h2>
+                <button class="close-form" id="close-form-btn">&times;</button>
+            </div>
+            <form id="contribution-form">
+                <input type="hidden" id="contribution-id">
+                <div class="form-group">
+                    <label for="contribution-title" class="form-label">Titre de la contribution</label>
+                    <input type="text" id="contribution-title" class="form-control" placeholder="Ex: Première séance de contribution" required>
+                </div>
+                <div class="form-group">
+                    <label for="contribution-date" class="form-label">Date</label>
+                    <input type="date" id="contribution-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="contribution-description" class="form-label">Description (optionnel)</label>
+                    <textarea id="contribution-description" class="form-control" placeholder="Décrivez l'objectif de cette contribution..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-contribution">Annuler</button>
+                    <button type="submit" class="btn">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Formulaire de membre (modal) -->
+    <div class="form-section" id="member-form-section" style="display: none;">
+        <div class="form-container">
+            <div class="form-header">
+                <h2 id="member-form-title">Ajouter un Membre</h2>
+                <button class="close-form" id="close-member-form-btn">&times;</button>
+            </div>
+            <form id="member-form">
+                <input type="hidden" id="member-id">
+                <input type="hidden" id="contribution-id-for-member">
+                <div class="form-group">
+                    <label for="member-name" class="form-label">Nom et prénom</label>
+                    <input type="text" id="member-name" class="form-control" placeholder="Ex: Jean Dupont" required>
+                </div>
+                <div class="form-group">
+                    <label for="member-amount" class="form-label">Montant (FCFA)</label>
+                    <input type="number" id="member-amount" class="form-control" placeholder="Ex: 5000" required min="0">
+                </div>
+                <div class="form-group">
+                    <label for="member-status" class="form-label">Statut</label>
+                    <select id="member-status" class="form-control">
+                        <option value="pending">En attente</option>
+                        <option value="paid">Payé</option>
+                        <option value="cancelled">Annulé</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="member-notes" class="form-label">Notes (optionnel)</label>
+                    <textarea id="member-notes" class="form-control" placeholder="Notes supplémentaires..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-member">Annuler</button>
+                    <button type="submit" class="btn">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pied de page et navigation -->
+    <div class="footer-container">
+        <nav class="nav-band">
+            <div class="nav-buttons-container">
+                <a href="agenda.html" class="nav-button">
+                    <i class="fas fa-calendar-alt"></i> Agenda
+                </a>
+                <a href="contributions.html" class="nav-button active">
+                    <i class="fas fa-hand-holding-usd"></i> Contributions
+                </a>
+                <a href="announcements.html" class="nav-button">
+                    <i class="fas fa-bullhorn"></i> Annonces
+                </a>
+                <a href="photos.html" class="nav-button">
+                    <i class="fas fa-images"></i> Photos
+                </a>
+                <a href="videos.html" class="nav-button">
+                    <i class="fas fa-video"></i> Vidéos
+                </a>
+                <a href="history.html" class="nav-button">
+                    <i class="fas fa-history"></i> Histoire Familiale
+                </a>
+            </div>
+        </nav>
+        <footer>
+            &copy; 2025 MeetFamily - Tous droits réservés
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/contributions.js"></script>
+</body>
+</html>

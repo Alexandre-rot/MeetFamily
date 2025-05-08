@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeetFamily - Annonces</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Polices Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Styles spécifiques à la page annonces */
+        .page-title {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .announcements-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin: 1rem auto;
+            max-width: 800px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .new-announcement-btn {
+            display: block;
+            margin: 0 auto 2rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .announcements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .announcement-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .announcement-header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .announcement-user {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .announcement-user img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .announcement-content {
+            padding: 1.5rem;
+        }
+        
+        .announcement-text {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .announcement-audio {
+            margin: 1rem 0;
+            width: 100%;
+            background-color: #f5f5f5;
+            border-radius: var(--border-radius);
+            padding: 0.5rem;
+        }
+        
+        .announcement-audio audio {
+            width: 100%;
+        }
+        
+        .announcement-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+        
+        .announcement-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            color: var(--primary-color);
+        }
+        
+        .action-btn.liked {
+            color: #e74c3c;
+        }
+        
+        .announcement-date {
+            font-size: 0.8rem;
+            color: #777;
+        }
+        
+        .comments-section {
+            padding: 1rem 1.5rem;
+            background-color: #f5f5f5;
+            border-top: 1px solid #eee;
+            display: none;
+        }
+        
+        .comment-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .comment-input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+        }
+        
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .comments-list {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .comment {
+            background-color: white;
+            padding: 0.8rem 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+        }
+        
+        .comment-user {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .comment-date {
+            font-size: 0.75rem;
+            color: #777;
+        }
+        
+        .comment-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        /* Styles pour l'enregistrement audio */
+        .audio-recorder {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background-color: #f5f5f5;
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .record-controls {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .record-btn {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        
+        .record-btn:hover {
+            background-color: #3d8b40;
+            transform: scale(1.05);
+        }
+        
+        .record-btn.recording {
+            background-color: #e74c3c;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+        
+        .audio-preview {
+            width: 100%;
+            display: none;
+        }
+        
+        .audio-preview audio {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+        
+        .audio-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête avec photo de profil et logo -->
+    <header>
+        <div class="profile-area">
+            <img src="" alt="Photo de profil" class="profile-pic" id="profile-pic">
+        </div>
+        <div class="logo-area">
+            <h1>MeetFamily</h1>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+        <h1 class="page-title">Annonces</h1>
+        
+        <div class="announcements-container">
+            <button class="btn new-announcement-btn" id="new-announcement-btn">
+                <i class="fas fa-plus-circle"></i> Nouvelle annonce
+            </button>
+            
+            <div class="announcements-list" id="announcements-list">
+                <!-- Les annonces seront ajoutées ici dynamiquement -->
+            </div>
+        </div>
+    </main>
+    
+    <!-- Formulaire d'annonce (modal) -->
+    <div class="form-section" id="announcement-form-section" style="display: none;">
+        <div class="form-container">
+            <div class="form-header">
+                <h2>Nouvelle Annonce</h2>
+                <button class="close-form" id="close-form-btn">&times;</button>
+            </div>
+            <form id="announcement-form">
+                <input type="hidden" id="announcement-id">
+                <div class="form-group">
+                    <label for="user-name" class="form-label">Votre nom</label>
+                    <input type="text" id="user-name" class="form-control" placeholder="Votre nom" required>
+                </div>
+                <div class="form-group">
+                    <label for="announcement-text" class="form-label">Annonce (texte)</label>
+                    <textarea id="announcement-text" class="form-control" placeholder="Écrivez votre annonce ici..." rows="5"></textarea>
+                </div>
+                
+                <!-- Enregistrement audio -->
+                <div class="audio-recorder">
+                    <h3>Annonce vocale (optionnel)</h3>
+                    <div class="record-controls">
+                        <button type="button" class="record-btn" id="record-btn">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <div class="audio-preview" id="audio-preview">
+                        <audio id="audio-player" controls></audio>
+                        <div class="audio-actions">
+                            <button type="button" class="btn btn-secondary" id="delete-audio-btn">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-announcement">Annuler</button>
+                    <button type="submit" class="btn">Publier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal pour les commentaires -->
+    <div class="form-section" id="comments-modal" style="display: none;">
+        <div class="form-container" style="max-width: 500px;">
+            <div class="form-header" style="border-bottom: 2px solid #333;">
+                <h2>Commentaires</h2>
+                <button class="close-form" id="close-comments-btn">&times;</button>
+            </div>
+            <div class="comments-list" id="modal-comments-list" style="max-height: 350px; overflow-y: auto; padding: 1rem; border: 1px solid #ddd; margin: 1rem 0; border-radius: 8px; background-color: #f9f9f9;">
+                <!-- Les commentaires seront ajoutés ici dynamiquement -->
+            </div>
+            <div class="user-comment-section">
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="modal-user-name" class="form-label">Votre nom</label>
+                    <input type="text" id="modal-user-name" class="form-control" placeholder="Votre nom" required>
+                </div>
+                <form id="modal-comment-form" class="comment-form" style="display: flex; flex-direction: column; gap: 10px;">
+                    <input type="hidden" id="modal-announcement-id">
+                    <textarea id="modal-comment-input" class="comment-input" placeholder="Ajouter un commentaire (texte ou emoji)..." rows="3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+                    <div style="text-align: right; margin-top: -5px;">
+                        <small style="color: #666; font-style: italic;">Le commentaire texte est optionnel si vous enregistrez un vocal</small>
+                    </div>
+                    
+                    <!-- Option d'enregistrement audio pour les commentaires -->
+                    <div class="audio-comment-section" style="display: flex; align-items: center; gap: 10px; margin: 5px 0;">
+                        <button type="button" class="btn btn-circle" id="comment-record-btn" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: var(--primary-color); color: white;">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <div id="comment-audio-preview" style="display: none; flex-grow: 1;">
+                            <audio id="comment-audio-player" controls style="width: 100%;"></audio>
+                            <button type="button" class="btn btn-sm btn-secondary" id="delete-comment-audio-btn" style="margin-top: 5px;">
+                                <i class="fas fa-times"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn" style="align-self: flex-end;">Commenter</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pied de page et navigation -->
+    <div class="footer-container">
+        <nav class="nav-band">
+            <div class="nav-buttons-container">
+                <a href="agenda.html" class="nav-button">
+                    <i class="fas fa-calendar-alt"></i> Agenda
+                </a>
+                <a href="contributions.html" class="nav-button">
+                    <i class="fas fa-hand-holding-usd"></i> Contributions
+                </a>
+                <a href="announcements.html" class="nav-button active">
+                    <i class="fas fa-bullhorn"></i> Annonces
+                </a>
+                <a href="photos.html" class="nav-button">
+                    <i class="fas fa-images"></i> Photos
+                </a>
+                <a href="videos.html" class="nav-button">
+                    <i class="fas fa-video"></i> Vidéos
+                </a>
+                <a href="history.html" class="nav-button">
+                    <i class="fas fa-history"></i> Histoire Familiale
+                </a>
+            </div>
+        </nav>
+        <footer>
+            &copy; 2025 MeetFamily - Tous droits réservés
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Scripts -->
+    <script src="js/announcements.js"></script>
+    <script>
+        // Variables globales
+        const API_URL = '/api';
+        let mediaRecorder;
+        let audioChunks = [];
+        let audioBlob;
+        let audioUrl;
+        let announcements = []; // Déclaration de la variable globale pour les annonces
+        
+        // Exécuter quand la page est chargée
+        document.addEventListener('DOMContentLoaded', () => {
+            // Charger le profil utilisateur
+            loadUserProfile();
+            
+            // Initialiser les gestionnaires d'événements pour l'enregistrement audio
+            initAudioRecording();
+            
+            // Initialiser tous les écouteurs d'événements
+            initEventListeners();
+            
+            // Charger les annonces
+            loadAnnouncements();
+        });
+        
+        // Fonction pour initialiser les écouteurs d'événements
+        function initEventListeners() {
+            // Bouton pour créer une nouvelle annonce
+            document.getElementById('new-announcement-btn').addEventListener('click', () => {
+                openAnnouncementForm();
+            });
+            
+            // Gestionnaire pour soumettre le formulaire d'annonce
+            document.getElementById('announcement-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitAnnouncement();
+            });
+            
+            // Gestionnaire pour fermer le formulaire
+            document.getElementById('close-form-btn').addEventListener('click', () => {
+                document.getElementById('announcement-form-section').style.display = 'none';
+            });
+            
+            // Gestionnaire pour annuler l'annonce
+            document.getElementById('cancel-announcement').addEventListener('click', () => {
+                document.getElementById('announcement-form-section').style.display = 'none';
+            });
+            
+            // Gestionnaire pour soumettre un commentaire
+            document.getElementById('modal-comment-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitComment();
+            });
+            
+            // Gestionnaire pour fermer le modal des commentaires
+            document.getElementById('close-comments-btn').addEventListener('click', () => {
+                document.getElementById('comments-modal').style.display = 'none';
+            });
+        }
+        
+        // Fonction pour charger les annonces depuis l'API
+        async function loadAnnouncements() {
+            try {
+                const response = await fetch(`${API_URL}/announcements`);
+                if (!response.ok) throw new Error('Erreur lors du chargement des annonces');
+                
+                announcements = await response.json();
+                displayAnnouncements();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du chargement des annonces', 'error');
+            }
+        }
+
+        // Fonction pour charger le profil utilisateur
+        async function loadUserProfile() {
+            try {
+                const response = await fetch(`${API_URL}/user`);
+                if (!response.ok) throw new Error('Erreur lors du chargement du profil');
+                
+                const user = await response.json();
+                const profilePic = document.getElementById('profile-pic');
+                
+                if (user.profilePicture) {
+                    profilePic.src = user.profilePicture;
+                } else {
+                    profilePic.src = 'images/default-profile.jpg';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('profile-pic').src = 'images/default-profile.jpg';
+            }
+        }
+
+        // Initialiser l'enregistrement audio
+        function initAudioRecording() {
+            const recordBtn = document.getElementById('record-btn');
+            const audioPreview = document.getElementById('audio-preview');
+            const audioPlayer = document.getElementById('audio-player');
+            const deleteAudioBtn = document.getElementById('delete-audio-btn');
+            
+            recordBtn.addEventListener('click', () => {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                    recordBtn.classList.remove('recording');
+                    recordBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                } else {
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(stream => {
+                            audioChunks = [];
+                            mediaRecorder = new MediaRecorder(stream);
+                            
+                            mediaRecorder.ondataavailable = (e) => {
+                                audioChunks.push(e.data);
+                            };
+                            
+                            mediaRecorder.onstop = () => {
+                                audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                                audioUrl = URL.createObjectURL(audioBlob);
+                                audioPlayer.src = audioUrl;
+                                audioPreview.style.display = 'block';
+                                
+                                // Arrêter les pistes
+                                stream.getTracks().forEach(track => track.stop());
+                            };
+                            
+                            mediaRecorder.start();
+                            recordBtn.classList.add('recording');
+                            recordBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                        })
+                        .catch(error => {
+                            console.error('Erreur lors de l\'accès au microphone:', error);
+                            showNotification('Impossible d\'accéder au microphone', 'error');
+                        });
+                }
+            });
+            
+            deleteAudioBtn.addEventListener('click', () => {
+                audioPreview.style.display = 'none';
+                audioPlayer.src = '';
+                audioBlob = null;
+                audioUrl = null;
+            });
+        }
+
+        // Fonction pour afficher une notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.classList.add('show');
+            
+            // Masquer la notification après 3 secondes
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeetFamily - Vidéos</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Polices Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Styles spécifiques à la page vidéos */
+        .page-title {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .videos-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin: 1rem auto;
+            max-width: 1200px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius);
+            background-color: rgba(103, 58, 183, 0.05);
+        }
+        
+        .upload-message {
+            margin: 1rem 0;
+            color: #555;
+            text-align: center;
+        }
+        
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .upload-btn:hover {
+            background-color: #5e35b1;
+        }
+        
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .video-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .video-thumbnail {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            position: relative;
+            background-color: #000;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-thumbnail:hover img {
+            opacity: 0.6;
+        }
+        
+        .video-play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background-color: rgba(76, 175, 80, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        
+        .video-play-button i {
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .video-thumbnail:hover .video-play-button {
+            transform: translate(-50%, -50%) scale(1.1);
+            background-color: var(--primary-color);
+        }
+        
+        .video-info {
+            padding: 1.2rem;
+        }
+        
+        .video-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+        
+        .video-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #555;
+            margin-bottom: 0.8rem;
+        }
+        
+        .video-duration {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .video-date {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .video-actions {
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .video-action-btn {
+            background: none;
+            border: none;
+            color: #555;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .video-action-btn:hover {
+            color: var(--primary-color);
+        }
+        
+        /* Modal de lecture vidéo */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 1rem;
+            position: relative;
+        }
+        
+        .modal-video-container {
+            width: 80%;
+            max-width: 1000px;
+        }
+        
+        .modal-video {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: black;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            color: var(--primary-color);
+        }
+        
+        .no-videos {
+            text-align: center;
+            padding: 2rem;
+            color: #555;
+            grid-column: 1 / -1;
+        }
+        
+        .no-videos i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête avec photo de profil et logo -->
+    <header>
+        <div class="profile-area">
+            <img src="" alt="Photo de profil" class="profile-pic" id="profile-pic">
+        </div>
+        <div class="logo-area">
+            <h1>MeetFamily</h1>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+        <h1 class="page-title">Galerie Vidéos</h1>
+        
+        <div class="videos-container">
+            <!-- Zone d'upload de vidéos -->
+            <div class="upload-area">
+                <h2>Ajouter des vidéos</h2>
+                <p class="upload-message">Glissez-déposez vos vidéos ici ou cliquez pour sélectionner des fichiers</p>
+                <button class="upload-btn" id="upload-btn">
+                    <i class="fas fa-upload"></i> Sélectionner des vidéos
+                </button>
+                <input type="file" id="video-input" multiple accept="video/*" style="display: none;">
+            </div>
+            
+            <!-- Grille de vidéos -->
+            <div class="videos-grid" id="videos-grid">
+                <!-- Les vidéos seront ajoutées ici dynamiquement -->
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal pour lire les vidéos -->
+    <div class="video-modal" id="video-modal">
+        <div class="modal-content">
+            <div class="modal-video-container">
+                <video class="modal-video" id="modal-video" controls></video>
+            </div>
+            <button class="modal-close" id="modal-close">&times;</button>
+        </div>
+    </div>
+
+    <!-- Pied de page et navigation -->
+    <div class="footer-container">
+        <nav class="nav-band">
+            <div class="nav-buttons-container">
+                <a href="agenda.html" class="nav-button">
+                    <i class="fas fa-calendar-alt"></i> Agenda
+                </a>
+                <a href="contributions.html" class="nav-button">
+                    <i class="fas fa-hand-holding-usd"></i> Contributions
+                </a>
+                <a href="announcements.html" class="nav-button">
+                    <i class="fas fa-bullhorn"></i> Annonces
+                </a>
+                <a href="photos.html" class="nav-button">
+                    <i class="fas fa-images"></i> Photos
+                </a>
+                <a href="videos.html" class="nav-button active">
+                    <i class="fas fa-video"></i> Vidéos
+                </a>
+                <a href="history.html" class="nav-button">
+                    <i class="fas fa-history"></i> Histoire Familiale
+                </a>
+            </div>
+        </nav>
+        <footer>
+            &copy; 2025 MeetFamily - Tous droits réservés
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Scripts -->
+    <script src="js/videos.js"></script>
+    <script>
+        // Variables globales
+        const API_URL = '/api';
+        let videos = [];
+        
+        // Exécuter quand la page est chargée
+        document.addEventListener('DOMContentLoaded', () => {
+            // Charger le profil utilisateur
+            loadUserProfile();
+            
+            // Initialiser l'upload de vidéos
+            initVideoUpload();
+            
+            // Charger les vidéos existantes
+            loadVideos();
+            
+            // Initialiser le modal
+            initVideoModal();
+        });
+
+        // Fonction pour charger le profil utilisateur
+        async function loadUserProfile() {
+            try {
+                const response = await fetch(`${API_URL}/user`);
+                if (!response.ok) throw new Error('Erreur lors du chargement du profil');
+                
+                const user = await response.json();
+                const profilePic = document.getElementById('profile-pic');
+                
+                if (user.profilePicture) {
+                    profilePic.src = user.profilePicture;
+                } else {
+                    profilePic.src = 'images/default-profile.jpg';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('profile-pic').src = 'images/default-profile.jpg';
+            }
+        }
+
+        // Fonction pour initialiser l'upload de vidéos
+        function initVideoUpload() {
+            const uploadBtn = document.getElementById('upload-btn');
+            const videoInput = document.getElementById('video-input');
+            const uploadArea = document.querySelector('.upload-area');
+            
+            // Ouvrir le sélecteur de fichiers lors du clic sur le bouton
+            uploadBtn.addEventListener('click', () => {
+                videoInput.click();
+            });
+            
+            // Gérer la sélection de fichiers
+            videoInput.addEventListener('change', async (e) => {
+                if (e.target.files.length > 0) {
+                    await uploadVideos(Array.from(e.target.files));
+                    // Réinitialiser l'input pour permettre de sélectionner les mêmes fichiers à nouveau
+                    videoInput.value = '';
+                }
+            });
+            
+            // Gérer le glisser-déposer
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = "#4CAF50";
+                uploadArea.style.backgroundColor = 'rgba(76, 175, 80, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = "#673AB7";
+                uploadArea.style.backgroundColor = 'rgba(103, 58, 183, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = "#673AB7";
+                uploadArea.style.backgroundColor = 'rgba(103, 58, 183, 0.05)';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    await uploadVideos(Array.from(e.dataTransfer.files));
+                }
+            });
+        }
+
+        // Fonction pour charger les vidéos existantes
+        async function loadVideos() {
+            try {
+                const response = await fetch(`${API_URL}/videos`);
+                if (!response.ok) throw new Error('Erreur lors du chargement des vidéos');
+                
+                videos = await response.json();
+                
+                // Afficher les vidéos dans la grille
+                displayVideos();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du chargement des vidéos', 'error');
+            }
+        }
+
+        // Fonction pour afficher les vidéos dans la grille
+        function displayVideos() {
+            const videosGrid = document.getElementById('videos-grid');
+            videosGrid.innerHTML = '';
+            
+            if (videos.length === 0) {
+                videosGrid.innerHTML = `
+                    <div class="no-videos">
+                        <i class="fas fa-video"></i>
+                        <h3>Aucune vidéo</h3>
+                        <p>Ajoutez des vidéos pour commencer votre galerie.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Trier les vidéos par date (les plus récentes d'abord)
+            videos.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            videos.forEach((video) => {
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card';
+                
+                // Utiliser soit la miniature générée, soit une image par défaut
+                const thumbnailUrl = video.thumbnailUrl || 'images/video-placeholder.jpg';
+                
+                videoCard.innerHTML = `
+                    <div class="video-thumbnail" data-url="${video.url}">
+                        <img src="${thumbnailUrl}" alt="Miniature vidéo">
+                        <div class="video-play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">${video.title || 'Vidéo sans titre'}</h3>
+                        <div class="video-details">
+                            <span class="video-duration">
+                                <i class="fas fa-clock"></i> ${video.duration || '00:00'}
+                            </span>
+                            <span class="video-date">
+                                <i class="fas fa-calendar-day"></i> ${formatDate(video.createdAt)}
+                            </span>
+                        </div>
+                        <div class="video-actions">
+                            <button class="video-action-btn" data-id="${video.id}">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Ajouter un événement de clic pour lire la vidéo
+                const thumbnail = videoCard.querySelector('.video-thumbnail');
+                thumbnail.addEventListener('click', () => {
+                    const videoUrl = thumbnail.getAttribute('data-url');
+                    openVideoModal(videoUrl);
+                });
+                
+                // Ajouter un événement de clic pour le bouton de suppression
+                const deleteBtn = videoCard.querySelector('.video-action-btn');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Éviter de déclencher l'événement de clic de la miniature
+                    const videoId = deleteBtn.getAttribute('data-id');
+                    if (confirm('Voulez-vous vraiment supprimer cette vidéo ?')) {
+                        deleteVideo(videoId);
+                    }
+                });
+                
+                videosGrid.appendChild(videoCard);
+            });
+        }
+
+        // Fonction pour télécharger des vidéos sur le serveur
+        async function uploadVideos(files) {
+            // Vérifier que les fichiers sont des vidéos
+            const videoFiles = files.filter(file => file.type.startsWith('video/'));
+            
+            if (videoFiles.length === 0) {
+                showNotification('Veuillez sélectionner des fichiers vidéo', 'error');
+                return;
+            }
+            
+            try {
+                showNotification('Téléchargement en cours...');
+                
+                // Créer un FormData pour chaque vidéo et les télécharger en parallèle
+                const uploadPromises = videoFiles.map(async (file) => {
+                    // Générer une miniature pour la vidéo
+                    const thumbnailUrl = await generateThumbnail(file);
+                    const duration = await getVideoDuration(file);
+                    
+                    const formData = new FormData();
+                    formData.append('video', file);
+                    formData.append('thumbnailUrl', thumbnailUrl);
+                    formData.append('duration', duration);
+                    formData.append('title', file.name.replace(/\.[^/.]+$/, '')); // Nom du fichier sans extension
+                    
+                    const response = await fetch(`${API_URL}/videos`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) throw new Error(`Erreur lors de l'upload de ${file.name}`);
+                    
+                    return await response.json();
+                });
+                
+                const results = await Promise.all(uploadPromises);
+                
+                // Ajouter les nouvelles vidéos à notre liste
+                videos = [...videos, ...results];
+                
+                // Mettre à jour l'affichage
+                displayVideos();
+                
+                showNotification(`${results.length} vidéo(s) ajoutée(s) avec succès`);
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du téléchargement des vidéos', 'error');
+            }
+        }
+
+        // Fonction pour obtenir la durée d'une vidéo
+        function getVideoDuration(videoFile) {
+            return new Promise((resolve) => {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                
+                video.onloadedmetadata = () => {
+                    // Formatage de la durée (secondes -> MM:SS)
+                    const minutes = Math.floor(video.duration / 60);
+                    const seconds = Math.floor(video.duration % 60);
+                    const formattedDuration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                    resolve(formattedDuration);
+                    
+                    // Libérer les ressources
+                    URL.revokeObjectURL(video.src);
+                };
+                
+                video.onerror = () => {
+                    resolve('00:00'); // Durée par défaut en cas d'erreur
+                    URL.revokeObjectURL(video.src);
+                };
+                
+                video.src = URL.createObjectURL(videoFile);
+            });
+        }
+
+        // Fonction pour générer une miniature pour une vidéo
+        function generateThumbnail(videoFile) {
+            return new Promise((resolve) => {
+                const video = document.createElement('video');
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                
+                video.preload = 'metadata';
+                
+                video.onloadedmetadata = () => {
+                    // Définir le temps de la miniature (par exemple, 1 seconde)
+                    video.currentTime = 1;
+                };
+                
+                video.onseeked = () => {
+                    // Capturer une image à partir de la vidéo
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    // Convertir le canvas en URL de données (base64)
+                    const thumbnailUrl = canvas.toDataURL('image/jpeg');
+                    resolve(thumbnailUrl);
+                    
+                    // Libérer les ressources
+                    URL.revokeObjectURL(video.src);
+                };
+                
+                video.onerror = () => {
+                    resolve('images/video-placeholder.jpg'); // Image par défaut en cas d'erreur
+                    URL.revokeObjectURL(video.src);
+                };
+                
+                video.src = URL.createObjectURL(videoFile);
+            });
+        }
+
+        // Fonction pour supprimer une vidéo
+        async function deleteVideo(videoId) {
+            try {
+                const response = await fetch(`${API_URL}/videos/${videoId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Erreur lors de la suppression de la vidéo');
+                
+                // Supprimer la vidéo de notre liste
+                videos = videos.filter(video => video.id !== parseInt(videoId));
+                
+                // Mettre à jour l'affichage
+                displayVideos();
+                
+                showNotification('Vidéo supprimée avec succès');
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de la suppression de la vidéo', 'error');
+            }
+        }
+
+        // Fonction pour initialiser le modal
+        function initVideoModal() {
+            const modal = document.getElementById('video-modal');
+            const modalVideo = document.getElementById('modal-video');
+            const closeBtn = document.getElementById('modal-close');
+            
+            // Fermer le modal en cliquant sur le bouton de fermeture
+            closeBtn.addEventListener('click', () => {
+                modalVideo.pause(); // Arrêter la lecture de la vidéo
+                modal.style.display = 'none';
+            });
+            
+            // Fermer le modal en cliquant en dehors de la vidéo
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modalVideo.pause(); // Arrêter la lecture de la vidéo
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Fermer le modal avec la touche Echap
+            document.addEventListener('keydown', (e) => {
+                if (modal.style.display === 'block' && e.key === 'Escape') {
+                    modalVideo.pause(); // Arrêter la lecture de la vidéo
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Fonction pour ouvrir le modal avec une vidéo spécifique
+        function openVideoModal(videoUrl) {
+            const modal = document.getElementById('video-modal');
+            const modalVideo = document.getElementById('modal-video');
+            
+            modalVideo.src = videoUrl;
+            modal.style.display = 'block';
+            modalVideo.play();
+        }
+
+        // Fonction pour formater les dates
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('fr-FR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            }).format(date);
+        }
+
+        // Fonction pour afficher une notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.classList.add('show');
+            
+            // Masquer la notification après 3 secondes
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

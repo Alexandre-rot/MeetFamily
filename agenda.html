@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeetFamily - Agenda</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Polices Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Styles spécifiques à la page Agenda */
+        .page-title {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .agenda-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin: 1rem auto;
+            max-width: 1000px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .agenda-intro {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .agenda-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .agenda-list {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .agenda-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            position: relative;
+        }
+        
+        .agenda-item:last-child {
+            border-bottom: none;
+        }
+        
+        .agenda-date {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .agenda-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .agenda-description {
+            margin-bottom: 1rem;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .agenda-items {
+            margin-top: 1rem;
+        }
+        
+        .agenda-item-list {
+            list-style-type: none;
+            padding-left: 1.5rem;
+        }
+        
+        .agenda-item-list li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .agenda-item-list li::before {
+            content: '\2022';
+            color: var(--secondary-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+        
+        .agenda-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .agenda-action-btn {
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #555;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .agenda-action-btn:hover {
+            color: var(--primary-color);
+        }
+        
+        .modal-form {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .agenda-items-container {
+            margin-top: 1rem;
+            border: 1px solid #eee;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            background-color: #fafafa;
+        }
+        
+        .agenda-items-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .add-item-btn {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.9rem;
+        }
+        
+        .agenda-item-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+            align-items: center;
+        }
+        
+        .agenda-item-input {
+            flex-grow: 1;
+        }
+        
+        .remove-item-btn {
+            background: none;
+            border: none;
+            color: #f44336;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+        
+        .view-agenda-content {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête avec photo de profil et logo -->
+    <header>
+        <div class="profile-area">
+            <img src="" alt="Photo de profil" class="profile-pic" id="profile-pic">
+        </div>
+        <div class="logo-area">
+            <h1>MeetFamily</h1>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+        <h1 class="page-title">Agenda des Réunions</h1>
+        
+        <div class="agenda-container">
+            <div class="agenda-intro">
+                <h2>Planifiez vos réunions familiales</h2>
+                <p>Organisez les points à discuter et gardez une trace des décisions prises.</p>
+            </div>
+            
+            <div class="agenda-header">
+                <h3>Réunions à venir et passées</h3>
+                <button class="btn" id="create-agenda-btn">
+                    <i class="fas fa-plus-circle"></i> Nouvelle réunion
+                </button>
+            </div>
+            
+            <div class="agenda-list" id="agenda-list">
+                <!-- Les réunions seront ajoutées ici dynamiquement -->
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Formulaire d'ajout/édition d'agenda (modal) -->
+    <div class="form-section" id="agenda-form-section" style="display: none;">
+        <div class="form-container">
+            <div class="form-header">
+                <h2 id="form-title">Nouvelle réunion</h2>
+                <button class="close-form" id="close-form-btn">&times;</button>
+            </div>
+            <form id="agenda-form" class="modal-form">
+                <input type="hidden" id="agenda-id">
+                <div class="form-group">
+                    <label for="agenda-title" class="form-label">Titre de la réunion</label>
+                    <input type="text" id="agenda-title" class="form-control" placeholder="Ex: Réunion mensuelle de Mai" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="agenda-date" class="form-label">Date</label>
+                        <input type="date" id="agenda-date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="agenda-time" class="form-label">Heure</label>
+                        <input type="time" id="agenda-time" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="agenda-location" class="form-label">Lieu</label>
+                    <input type="text" id="agenda-location" class="form-control" placeholder="Ex: Maison familiale">
+                </div>
+                <div class="form-group">
+                    <label for="agenda-description" class="form-label">Description</label>
+                    <textarea id="agenda-description" class="form-control" rows="3" placeholder="Description ou informations supplémentaires sur la réunion"></textarea>
+                </div>
+                
+                <div class="agenda-items-container">
+                    <div class="agenda-items-header">
+                        <h3>Points à discuter</h3>
+                        <button type="button" class="add-item-btn" id="add-item-btn">
+                            <i class="fas fa-plus"></i> Ajouter un point
+                        </button>
+                    </div>
+                    <div id="agenda-items-list">
+                        <!-- Les points seront ajoutés ici -->
+                        <div class="agenda-item-row">
+                            <input type="text" class="form-control agenda-item-input" placeholder="Point à discuter">
+                            <button type="button" class="remove-item-btn">&times;</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-agenda">Annuler</button>
+                    <button type="submit" class="btn">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal pour afficher les détails d'une réunion -->
+    <div class="form-section" id="view-agenda-section" style="display: none;">
+        <div class="form-container">
+            <div class="form-header">
+                <h2 id="view-agenda-title">Détails de la réunion</h2>
+                <button class="close-form" id="close-view-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="view-agenda-content" class="view-agenda-content">
+                    <!-- Les détails de la réunion seront affichés ici -->
+                </div>
+                <div class="form-actions">
+                    <button class="btn" id="close-view-agenda-btn">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pied de page et navigation -->
+    <div class="footer-container">
+        <nav class="nav-band">
+            <div class="nav-buttons-container">
+                <a href="agenda.html" class="nav-button active">
+                    <i class="fas fa-calendar-alt"></i> Agenda
+                </a>
+                <a href="contributions.html" class="nav-button">
+                    <i class="fas fa-hand-holding-usd"></i> Contributions
+                </a>
+                <a href="announcements.html" class="nav-button">
+                    <i class="fas fa-bullhorn"></i> Annonces
+                </a>
+                <a href="photos.html" class="nav-button">
+                    <i class="fas fa-images"></i> Photos
+                </a>
+                <a href="videos.html" class="nav-button">
+                    <i class="fas fa-video"></i> Vidéos
+                </a>
+                <a href="history.html" class="nav-button">
+                    <i class="fas fa-history"></i> Histoire Familiale
+                </a>
+            </div>
+        </nav>
+        <footer>
+            &copy; 2025 MeetFamily - Tous droits réservés
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/agenda.js"></script>
+</body>
+</html>

@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeetFamily - Histoire Familiale</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Polices Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Quill Editor CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <style>
+        /* Styles spécifiques à la page d'histoire familiale */
+        .page-title {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin: 1rem auto;
+            max-width: 1000px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-intro {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .history-intro p {
+            color: #555;
+            margin-bottom: 1.5rem;
+        }
+        
+        .history-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .history-editor {
+            margin-top: 2rem;
+        }
+        
+        .history-editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .history-editor-title {
+            font-size: 1.2rem;
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+        
+        .history-textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            resize: vertical;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .history-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .history-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .history-timeline {
+            margin-top: 3rem;
+        }
+        
+        .timeline-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .timeline-title {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-subtitle {
+            color: #555;
+            font-size: 1rem;
+        }
+        
+        .timeline-events {
+            position: relative;
+            padding: 2rem 0;
+        }
+        
+        .timeline-events::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background-color: var(--secondary-color);
+            transform: translateX(-50%);
+        }
+        
+        .timeline-event {
+            position: relative;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: flex-start;
+            width: 50%;
+        }
+        
+        .timeline-event:nth-child(even) {
+            align-self: flex-end;
+            margin-left: auto;
+            justify-content: flex-end;
+        }
+        
+        .timeline-event::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            width: 20px;
+            height: 20px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+            z-index: 2;
+        }
+        
+        .timeline-event:nth-child(odd)::before {
+            right: -10px;
+        }
+        
+        .timeline-event:nth-child(even)::before {
+            left: -10px;
+        }
+        
+        .timeline-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            position: relative;
+        }
+        
+        .timeline-content::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        
+        .timeline-event:nth-child(odd) .timeline-content::after {
+            right: -10px;
+            border-width: 10px 0 10px 10px;
+            border-color: transparent transparent transparent white;
+        }
+        
+        .timeline-event:nth-child(even) .timeline-content::after {
+            left: -10px;
+            border-width: 10px 10px 10px 0;
+            border-color: transparent white transparent transparent;
+        }
+        
+        .timeline-date {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-title {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-description {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #555;
+        }
+        
+        .timeline-image {
+            width: 100%;
+            margin-top: 1rem;
+            border-radius: var(--border-radius);
+        }
+        
+        .timeline-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .timeline-action-btn {
+            background: none;
+            border: none;
+            font-size: 0.9rem;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .timeline-action-btn:hover {
+            color: var(--primary-color);
+        }
+        
+        /* Formé modal pour ajouter/éditer un événement */
+        .event-form-container {
+            width: 90%;
+            max-width: 600px;
+        }
+        
+        .image-preview {
+            width: 100%;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+        
+        .image-preview img {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline-events::before {
+                left: 30px;
+            }
+            
+            .timeline-event {
+                width: 100%;
+                justify-content: flex-start;
+                padding-left: 60px;
+            }
+            
+            .timeline-event:nth-child(even) {
+                align-self: flex-start;
+                margin-left: 0;
+                justify-content: flex-start;
+            }
+            
+            .timeline-event::before {
+                left: 20px;
+            }
+            
+            .timeline-event:nth-child(odd)::before {
+                right: auto;
+            }
+            
+            .timeline-event:nth-child(even)::before {
+                left: 20px;
+            }
+            
+            .timeline-content {
+                width: 100%;
+            }
+            
+            .timeline-content::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête avec photo de profil et logo -->
+    <header>
+        <div class="profile-area">
+            <img src="" alt="Photo de profil" class="profile-pic" id="profile-pic">
+        </div>
+        <div class="logo-area">
+            <h1>MeetFamily</h1>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+        <h1 class="page-title">Histoire Familiale</h1>
+        
+        <div class="history-container">
+            <div class="history-intro">
+                <h2>Préservez l'histoire de votre famille</h2>
+                <p>Documentez les moments importants, les traditions et l'héritage de votre famille pour les générations futures.</p>
+                
+                <div class="history-buttons">
+                    <button class="btn" id="new-event-btn">
+                        <i class="fas fa-plus-circle"></i> Ajouter un événement
+                    </button>
+                    <a href="https://docs.google.com/document/create" target="_blank" class="btn btn-secondary">
+                        <i class="fas fa-file-alt"></i> Ouvrir Google Docs
+                    </a>
+                </div>
+            </div>
+            
+            <div class="history-editor">
+                <div class="history-editor-header">
+                    <h3 class="history-editor-title">Rédiger votre histoire familiale</h3>
+                </div>
+                <div id="history-editor" style="min-height: 300px;"></div>
+                <div id="history-content-display" style="margin-top: 2rem; border: 1px solid #eee; padding: 1rem; border-radius: var(--border-radius); background-color: white; display: none;"></div>
+                <div class="history-actions">
+                    <button class="btn" id="save-history-btn">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Ligne du temps des événements -->
+            <div class="history-timeline">
+                <div class="timeline-header">
+                    <h2 class="timeline-title">Chronologie Familiale</h2>
+                    <p class="timeline-subtitle">Explorez les moments clés de l'histoire de votre famille</p>
+                </div>
+                
+                <div class="timeline-events" id="timeline-events">
+                    <!-- Événements de la chronologie (ajoutés dynamiquement) -->
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Formulaire d'événement (modal) -->
+    <div class="form-section" id="event-form-section" style="display: none;">
+        <div class="form-container event-form-container">
+            <div class="form-header">
+                <h2 id="event-form-title">Ajouter un événement</h2>
+                <button class="close-form" id="close-event-form">&times;</button>
+            </div>
+            <form id="event-form">
+                <input type="hidden" id="event-id">
+                <div class="form-group">
+                    <label for="event-title" class="form-label">Événement</label>
+                    <input type="text" id="event-title" class="form-control" placeholder="Ex: Mariage de Grand-mère et Grand-père" required>
+                </div>
+                <div class="form-group">
+                    <label for="event-date" class="form-label">Date</label>
+                    <input type="date" id="event-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="event-description" class="form-label">Description</label>
+                    <textarea id="event-description" class="form-control" placeholder="Décrivez cet événement important..." rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="event-image" class="form-label">Image (optionnel)</label>
+                    <input type="file" id="event-image" class="form-control" accept="image/*">
+                    <div class="image-preview" id="image-preview">
+                        <!-- L'image sera affichée ici après sélection -->
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-event">Annuler</button>
+                    <button type="submit" class="btn">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pied de page et navigation -->
+    <div class="footer-container">
+        <nav class="nav-band">
+            <div class="nav-buttons-container">
+                <a href="agenda.html" class="nav-button">
+                    <i class="fas fa-calendar-alt"></i> Agenda
+                </a>
+                <a href="contributions.html" class="nav-button">
+                    <i class="fas fa-hand-holding-usd"></i> Contributions
+                </a>
+                <a href="announcements.html" class="nav-button">
+                    <i class="fas fa-bullhorn"></i> Annonces
+                </a>
+                <a href="photos.html" class="nav-button">
+                    <i class="fas fa-images"></i> Photos
+                </a>
+                <a href="videos.html" class="nav-button">
+                    <i class="fas fa-video"></i> Vidéos
+                </a>
+                <a href="history.html" class="nav-button active">
+                    <i class="fas fa-history"></i> Histoire Familiale
+                </a>
+            </div>
+        </nav>
+        <footer>
+            &copy; 2025 MeetFamily - Tous droits réservés
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Scripts -->
+    <script src="js/history.js"></script>
+    <script>
+        // Variables globales
+        const API_URL = '/api';
+        let historyEvents = [];
+        let historyContent = '';
+        
+        // Exécuter quand la page est chargée
+        document.addEventListener('DOMContentLoaded', () => {
+            // Charger le profil utilisateur
+            loadUserProfile();
+            
+            // Charger les événements et le contenu de l'histoire
+            loadHistoryEvents();
+            loadHistoryContent();
+            
+            // Initialiser le formulaire d'événement
+            initEventForm();
+            
+            // Initialiser l'éditeur d'histoire
+            initHistoryEditor();
+        });
+
+        // Fonction pour charger le profil utilisateur
+        async function loadUserProfile() {
+            try {
+                const response = await fetch(`${API_URL}/user`);
+                if (!response.ok) throw new Error('Erreur lors du chargement du profil');
+                
+                const user = await response.json();
+                const profilePic = document.getElementById('profile-pic');
+                
+                if (user.profilePicture) {
+                    profilePic.src = user.profilePicture;
+                } else {
+                    profilePic.src = 'images/default-profile.jpg';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('profile-pic').src = 'images/default-profile.jpg';
+            }
+        }
+
+        // Fonction pour charger les événements de l'histoire
+        async function loadHistoryEvents() {
+            try {
+                const response = await fetch(`${API_URL}/family-history/events`);
+                if (!response.ok) throw new Error('Erreur lors du chargement des événements');
+                
+                historyEvents = await response.json();
+                
+                // Afficher les événements dans la chronologie
+                displayHistoryEvents();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du chargement des événements', 'error');
+            }
+        }
+
+        // Variable globale pour l'éditeur Quill
+        let quillEditor;
+
+        // Fonction pour initialiser l'éditeur Quill
+        function initHistoryEditor() {
+            quillEditor = new Quill('#history-editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'align': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link', 'image', 'video'],
+                        ['clean']
+                    ]
+                },
+                placeholder: 'Écrivez l\'histoire de votre famille ici ou copiez-collez depuis Google Docs...'
+            });
+            
+            // Configurer le bouton d'enregistrement
+            document.getElementById('save-history-btn').addEventListener('click', saveHistoryContent);
+        }
+
+        // Fonction pour charger le contenu de l'histoire
+        async function loadHistoryContent() {
+            try {
+                const response = await fetch(`${API_URL}/family-history/content`);
+                if (!response.ok) throw new Error('Erreur lors du chargement du contenu');
+                
+                const data = await response.json();
+                historyContent = data.content || '';
+                
+                // Afficher le contenu dans l'éditeur Quill
+                if (quillEditor) {
+                    if (historyContent) {
+                        // Si le contenu est au format HTML, on l'insère directement
+                        try {
+                            quillEditor.root.innerHTML = historyContent;
+                        } catch (e) {
+                            // Si erreur avec l'HTML, on essaie d'insérer comme texte
+                            quillEditor.setText(historyContent);
+                        }
+                        
+                        // Afficher le contenu enregistré
+                        showSavedContent(historyContent);
+                    } else {
+                        quillEditor.setText('');
+                        // Masquer la zone d'affichage si vide
+                        document.getElementById('history-content-display').style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du chargement du contenu', 'error');
+            }
+        }
+        
+        // Fonction pour afficher le contenu enregistré
+        function showSavedContent(htmlContent) {
+            const displayDiv = document.getElementById('history-content-display');
+            displayDiv.innerHTML = htmlContent;
+            displayDiv.style.display = 'block';
+        }
+
+        // Fonction pour initialiser le formulaire d'événement
+        function initEventForm() {
+            const newEventBtn = document.getElementById('new-event-btn');
+            const eventFormSection = document.getElementById('event-form-section');
+            const closeEventForm = document.getElementById('close-event-form');
+            const cancelEvent = document.getElementById('cancel-event');
+            const eventForm = document.getElementById('event-form');
+            const eventImage = document.getElementById('event-image');
+            const imagePreview = document.getElementById('image-preview');
+            
+            // Ouvrir le formulaire pour ajouter un événement
+            newEventBtn.addEventListener('click', () => {
+                document.getElementById('event-form-title').textContent = 'Ajouter un événement';
+                eventForm.reset();
+                document.getElementById('event-id').value = '';
+                imagePreview.innerHTML = '';
+                eventFormSection.style.display = 'flex';
+            });
+            
+            // Fermer le formulaire
+            closeEventForm.addEventListener('click', () => {
+                eventFormSection.style.display = 'none';
+            });
+            
+            // Annuler le formulaire
+            cancelEvent.addEventListener('click', () => {
+                eventFormSection.style.display = 'none';
+            });
+            
+            // Gérer l'aperçu de l'image
+            eventImage.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = (event) => {
+                        imagePreview.innerHTML = `<img src="${event.target.result}" alt="Aperçu de l'image">`;
+                    };
+                    
+                    reader.readAsDataURL(file);
+                } else {
+                    imagePreview.innerHTML = '';
+                }
+            });
+            
+            // Soumettre le formulaire
+            eventForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const eventId = document.getElementById('event-id').value;
+                const title = document.getElementById('event-title').value;
+                const date = document.getElementById('event-date').value;
+                const description = document.getElementById('event-description').value;
+                const imageFile = eventImage.files[0];
+                
+                try {
+                    // Préparer les données
+                    const formData = new FormData();
+                    formData.append('title', title);
+                    formData.append('date', date);
+                    formData.append('description', description);
+                    
+                    if (imageFile) {
+                        formData.append('image', imageFile);
+                    }
+                    
+                    // URL et méthode selon ajout ou édition
+                    let url = `${API_URL}/family-history/events`;
+                    let method = 'POST';
+                    
+                    if (eventId) {
+                        url = `${API_URL}/family-history/events/${eventId}`;
+                        method = 'PUT';
+                    }
+                    
+                    // Envoyer les données au serveur
+                    const response = await fetch(url, {
+                        method,
+                        body: formData
+                    });
+                    
+                    if (!response.ok) throw new Error(`Erreur lors de l'enregistrement de l'événement`);
+                    
+                    const result = await response.json();
+                    
+                    // Mettre à jour la liste des événements
+                    if (eventId) {
+                        // Édition d'un événement existant
+                        historyEvents = historyEvents.map(event => event.id === parseInt(eventId) ? result : event);
+                    } else {
+                        // Ajout d'un nouvel événement
+                        historyEvents.push(result);
+                    }
+                    
+                    // Mettre à jour l'affichage
+                    displayHistoryEvents();
+                    
+                    // Fermer le formulaire et réinitialiser
+                    eventFormSection.style.display = 'none';
+                    eventForm.reset();
+                    document.getElementById('event-id').value = '';
+                    imagePreview.innerHTML = '';
+                    
+                    showNotification(`Événement ${eventId ? 'modifié' : 'ajouté'} avec succès`);
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    showNotification(`Erreur lors de l'enregistrement de l'événement`, 'error');
+                }
+            });
+        }
+
+        // Fonction pour sauvegarder le contenu de l'histoire
+        async function saveHistoryContent() {
+            // Récupérer le contenu HTML de l'éditeur Quill
+            const htmlContent = quillEditor.root.innerHTML;
+            
+            try {
+                const response = await fetch(`${API_URL}/family-history/content`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content: htmlContent })
+                });
+                
+                if (!response.ok) throw new Error('Erreur lors de l\'enregistrement du contenu');
+                
+                // Mettre à jour la variable historyContent
+                historyContent = htmlContent;
+                
+                // Afficher le contenu enregistré
+                showSavedContent(htmlContent);
+                
+                // Notification de succès
+                showNotification('Histoire enregistrée avec succès');
+                
+                // Réinitialiser l'éditeur (optionnel - enlever cette ligne pour garder le contenu dans l'éditeur)
+                // quillEditor.setText('');
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de l\'enregistrement de l\'histoire', 'error');
+            }
+        }
+
+        // Fonction pour afficher les événements dans la chronologie
+        function displayHistoryEvents() {
+            const timelineEvents = document.getElementById('timeline-events');
+            timelineEvents.innerHTML = '';
+            
+            if (historyEvents.length === 0) {
+                timelineEvents.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #555;">
+                        <i class="fas fa-info-circle" style="font-size: 2rem; color: #ddd; margin-bottom: 1rem;"></i>
+                        <h3>Aucun événement</h3>
+                        <p>Ajoutez des événements pour commencer votre chronologie familiale.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Trier les événements par date (les plus anciens d'abord)
+            historyEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            historyEvents.forEach((event, index) => {
+                const eventElement = document.createElement('div');
+                eventElement.className = 'timeline-event';
+                
+                eventElement.innerHTML = `
+                    <div class="timeline-content">
+                        <div class="timeline-date">${formatDate(event.date)}</div>
+                        <h3 class="timeline-title">${event.title}</h3>
+                        <p class="timeline-description">${event.description}</p>
+                        ${event.imageUrl ? `<img src="${event.imageUrl}" alt="${event.title}" class="timeline-image">` : ''}
+                        <div class="timeline-actions">
+                            <button class="timeline-action-btn edit-event" data-id="${event.id}">
+                                <i class="fas fa-edit"></i> Modifier
+                            </button>
+                            <button class="timeline-action-btn delete-event" data-id="${event.id}">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                timelineEvents.appendChild(eventElement);
+            });
+            
+            // Ajouter les événements de clic pour modifier/supprimer
+            document.querySelectorAll('.edit-event').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const eventId = e.currentTarget.getAttribute('data-id');
+                    editEvent(eventId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-event').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const eventId = e.currentTarget.getAttribute('data-id');
+                    if (confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
+                        deleteEvent(eventId);
+                    }
+                });
+            });
+        }
+
+        // Fonction pour éditer un événement
+        function editEvent(eventId) {
+            const event = historyEvents.find(event => event.id === parseInt(eventId));
+            if (!event) return;
+            
+            document.getElementById('event-form-title').textContent = 'Modifier l\'événement';
+            document.getElementById('event-id').value = eventId;
+            document.getElementById('event-title').value = event.title;
+            document.getElementById('event-date').value = formatDateForInput(event.date);
+            document.getElementById('event-description').value = event.description;
+            
+            const imagePreview = document.getElementById('image-preview');
+            if (event.imageUrl) {
+                imagePreview.innerHTML = `<img src="${event.imageUrl}" alt="Aperçu de l'image">`;
+            } else {
+                imagePreview.innerHTML = '';
+            }
+            
+            document.getElementById('event-form-section').style.display = 'flex';
+        }
+
+        // Fonction pour supprimer un événement
+        async function deleteEvent(eventId) {
+            try {
+                const response = await fetch(`${API_URL}/family-history/events/${eventId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Erreur lors de la suppression de l\'\u00e9vénement');
+                
+                // Mettre à jour la liste des événements
+                historyEvents = historyEvents.filter(event => event.id !== parseInt(eventId));
+                
+                // Mettre à jour l'affichage
+                displayHistoryEvents();
+                
+                showNotification('Événement supprimé avec succès');
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de la suppression de l\'\u00e9vénement', 'error');
+            }
+        }
+
+        // Formater une date pour l'affichage
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('fr-FR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            }).format(date);
+        }
+
+        // Formater une date pour les champs input date
+        function formatDateForInput(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Fonction pour afficher une notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.classList.add('show');
+            
+            // Masquer la notification après 3 secondes
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeetFamily - Photos</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Polices Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Styles spécifiques à la page photos */
+        .page-title {
+            color: var(--primary-color);
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .photos-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin: 1rem auto;
+            max-width: 1200px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 2px dashed var(--secondary-color);
+            border-radius: var(--border-radius);
+            background-color: rgba(103, 58, 183, 0.05);
+        }
+        
+        .upload-message {
+            margin: 1rem 0;
+            color: #555;
+            text-align: center;
+        }
+        
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .upload-btn:hover {
+            background-color: #5e35b1;
+        }
+        
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .photo-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            aspect-ratio: 1 / 1;
+        }
+        
+        .photo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .photo-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .photo-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.8rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .photo-card:hover .photo-overlay {
+            opacity: 1;
+        }
+        
+        .photo-date {
+            font-size: 0.85rem;
+        }
+        
+        .photo-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .photo-action-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .photo-action-btn:hover {
+            color: var(--primary-color);
+        }
+        
+        /* Modal de visualisation des photos */
+        .photo-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow: hidden;
+        }
+        
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 1rem;
+            position: relative;
+        }
+        
+        .modal-image {
+            max-width: 80%;
+            max-height: 80vh;
+            object-fit: contain;
+            border: 5px solid white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            color: var(--primary-color);
+        }
+        
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+        
+        .modal-nav-btn {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .modal-nav-btn:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .no-photos {
+            text-align: center;
+            padding: 2rem;
+            color: #555;
+        }
+        
+        .no-photos i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- En-tête avec photo de profil et logo -->
+    <header>
+        <div class="profile-area">
+            <img src="" alt="Photo de profil" class="profile-pic" id="profile-pic">
+        </div>
+        <div class="logo-area">
+            <h1>MeetFamily</h1>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main>
+        <h1 class="page-title">Galerie Photos</h1>
+        
+        <div class="photos-container">
+            <!-- Zone d'upload de photos -->
+            <div class="upload-area">
+                <h2>Ajouter des photos</h2>
+                <p class="upload-message">Glissez-déposez vos photos ici ou cliquez pour sélectionner des fichiers</p>
+                <button class="upload-btn" id="upload-btn">
+                    <i class="fas fa-upload"></i> Sélectionner des photos
+                </button>
+                <input type="file" id="photo-input" multiple accept="image/*" style="display: none;">
+            </div>
+            
+            <!-- Grille de photos -->
+            <div class="photos-grid" id="photos-grid">
+                <!-- Les photos seront ajoutées ici dynamiquement -->
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal pour visualiser les photos -->
+    <div class="photo-modal" id="photo-modal">
+        <div class="modal-content">
+            <img src="" alt="Photo en plein écran" class="modal-image" id="modal-image">
+            <button class="modal-close" id="modal-close">&times;</button>
+            <div class="modal-nav">
+                <button class="modal-nav-btn" id="prev-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="modal-nav-btn" id="next-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pied de page et navigation -->
+    <div class="footer-container">
+        <nav class="nav-band">
+            <div class="nav-buttons-container">
+                <a href="agenda.html" class="nav-button">
+                    <i class="fas fa-calendar-alt"></i> Agenda
+                </a>
+                <a href="contributions.html" class="nav-button">
+                    <i class="fas fa-hand-holding-usd"></i> Contributions
+                </a>
+                <a href="announcements.html" class="nav-button">
+                    <i class="fas fa-bullhorn"></i> Annonces
+                </a>
+                <a href="photos.html" class="nav-button active">
+                    <i class="fas fa-images"></i> Photos
+                </a>
+                <a href="videos.html" class="nav-button">
+                    <i class="fas fa-video"></i> Vidéos
+                </a>
+                <a href="history.html" class="nav-button">
+                    <i class="fas fa-history"></i> Histoire Familiale
+                </a>
+            </div>
+        </nav>
+        <footer>
+            &copy; 2025 MeetFamily - Tous droits réservés
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Scripts -->
+    <script src="js/photos.js"></script>
+    <script>
+        // Variables globales
+        const API_URL = '/api';
+        let photos = [];
+        let currentPhotoIndex = 0;
+        
+        // Exécuter quand la page est chargée
+        document.addEventListener('DOMContentLoaded', () => {
+            // Charger le profil utilisateur
+            loadUserProfile();
+            
+            // Initialiser l'upload de photos
+            initPhotoUpload();
+            
+            // Charger les photos existantes
+            loadPhotos();
+            
+            // Initialiser le modal
+            initPhotoModal();
+        });
+
+        // Fonction pour charger le profil utilisateur
+        async function loadUserProfile() {
+            try {
+                const response = await fetch(`${API_URL}/user`);
+                if (!response.ok) throw new Error('Erreur lors du chargement du profil');
+                
+                const user = await response.json();
+                const profilePic = document.getElementById('profile-pic');
+                
+                if (user.profilePicture) {
+                    profilePic.src = user.profilePicture;
+                } else {
+                    profilePic.src = 'images/default-profile.jpg';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('profile-pic').src = 'images/default-profile.jpg';
+            }
+        }
+
+        // Fonction pour initialiser l'upload de photos
+        function initPhotoUpload() {
+            const uploadBtn = document.getElementById('upload-btn');
+            const photoInput = document.getElementById('photo-input');
+            const uploadArea = document.querySelector('.upload-area');
+            
+            // Ouvrir le sélecteur de fichiers lors du clic sur le bouton
+            uploadBtn.addEventListener('click', () => {
+                photoInput.click();
+            });
+            
+            // Gérer la sélection de fichiers
+            photoInput.addEventListener('change', async (e) => {
+                if (e.target.files.length > 0) {
+                    await uploadPhotos(Array.from(e.target.files));
+                    // Réinitialiser l'input pour permettre de sélectionner les mêmes fichiers à nouveau
+                    photoInput.value = '';
+                }
+            });
+            
+            // Gérer le glisser-déposer
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = "#4CAF50";
+                uploadArea.style.backgroundColor = 'rgba(76, 175, 80, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = "#673AB7";
+                uploadArea.style.backgroundColor = 'rgba(103, 58, 183, 0.05)';
+            });
+            
+            uploadArea.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = "#673AB7";
+                uploadArea.style.backgroundColor = 'rgba(103, 58, 183, 0.05)';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    await uploadPhotos(Array.from(e.dataTransfer.files));
+                }
+            });
+        }
+
+        // Fonction pour charger les photos existantes
+        async function loadPhotos() {
+            try {
+                const response = await fetch(`${API_URL}/photos`);
+                if (!response.ok) throw new Error('Erreur lors du chargement des photos');
+                
+                photos = await response.json();
+                
+                // Afficher les photos dans la grille
+                displayPhotos();
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du chargement des photos', 'error');
+            }
+        }
+
+        // Fonction pour afficher les photos dans la grille
+        function displayPhotos() {
+            const photosGrid = document.getElementById('photos-grid');
+            photosGrid.innerHTML = '';
+            
+            if (photos.length === 0) {
+                photosGrid.innerHTML = `
+                    <div class="no-photos">
+                        <i class="fas fa-images"></i>
+                        <h3>Aucune photo</h3>
+                        <p>Ajoutez des photos pour commencer votre galerie.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Trier les photos par date (les plus récentes d'abord)
+            photos.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            photos.forEach((photo, index) => {
+                const photoCard = document.createElement('div');
+                photoCard.className = 'photo-card';
+                photoCard.innerHTML = `
+                    <img src="${photo.url}" alt="Photo de famille" loading="lazy">
+                    <div class="photo-overlay">
+                        <div class="photo-date">${formatDate(photo.createdAt)}</div>
+                        <div class="photo-actions">
+                            <button class="photo-action-btn" title="Supprimer" data-id="${photo.id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Ajouter un événement de clic pour ouvrir le modal
+                photoCard.addEventListener('click', (e) => {
+                    // Ne pas ouvrir le modal si on a cliqué sur le bouton de suppression
+                    if (e.target.closest('.photo-action-btn')) return;
+                    
+                    openPhotoModal(index);
+                });
+                
+                // Ajouter un événement de clic pour le bouton de suppression
+                const deleteBtn = photoCard.querySelector('.photo-action-btn');
+                deleteBtn.addEventListener('click', () => {
+                    const photoId = deleteBtn.getAttribute('data-id');
+                    if (confirm('Voulez-vous vraiment supprimer cette photo ?')) {
+                        deletePhoto(photoId);
+                    }
+                });
+                
+                photosGrid.appendChild(photoCard);
+            });
+        }
+
+        // Fonction pour télécharger des photos sur le serveur
+        async function uploadPhotos(files) {
+            // Vérifier que les fichiers sont des images
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            if (imageFiles.length === 0) {
+                showNotification('Veuillez sélectionner des fichiers image', 'error');
+                return;
+            }
+            
+            try {
+                showNotification('Téléchargement en cours...');
+                
+                // Créer un FormData pour chaque image et les télécharger en parallèle
+                const uploadPromises = imageFiles.map(async (file) => {
+                    const formData = new FormData();
+                    formData.append('photo', file);
+                    
+                    const response = await fetch(`${API_URL}/photos`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) throw new Error(`Erreur lors de l'upload de ${file.name}`);
+                    
+                    return await response.json();
+                });
+                
+                const results = await Promise.all(uploadPromises);
+                
+                // Ajouter les nouvelles photos à notre liste
+                photos = [...photos, ...results];
+                
+                // Mettre à jour l'affichage
+                displayPhotos();
+                
+                showNotification(`${results.length} photo(s) ajoutée(s) avec succès`);
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors du téléchargement des photos', 'error');
+            }
+        }
+
+        // Fonction pour supprimer une photo
+        async function deletePhoto(photoId) {
+            try {
+                const response = await fetch(`${API_URL}/photos/${photoId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Erreur lors de la suppression de la photo');
+                
+                // Supprimer la photo de notre liste
+                photos = photos.filter(photo => photo.id !== parseInt(photoId));
+                
+                // Mettre à jour l'affichage
+                displayPhotos();
+                
+                showNotification('Photo supprimée avec succès');
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Erreur lors de la suppression de la photo', 'error');
+            }
+        }
+
+        // Fonction pour initialiser le modal
+        function initPhotoModal() {
+            const modal = document.getElementById('photo-modal');
+            const modalImage = document.getElementById('modal-image');
+            const closeBtn = document.getElementById('modal-close');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            // Fermer le modal en cliquant sur le bouton de fermeture
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            
+            // Fermer le modal en cliquant en dehors de l'image
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            // Navigation avec les boutons
+            prevBtn.addEventListener('click', showPreviousPhoto);
+            nextBtn.addEventListener('click', showNextPhoto);
+            
+            // Navigation avec les touches du clavier
+            document.addEventListener('keydown', (e) => {
+                if (modal.style.display === 'block') {
+                    if (e.key === 'ArrowLeft') {
+                        showPreviousPhoto();
+                    } else if (e.key === 'ArrowRight') {
+                        showNextPhoto();
+                    } else if (e.key === 'Escape') {
+                        modal.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Fonction pour ouvrir le modal avec une photo spécifique
+        function openPhotoModal(index) {
+            currentPhotoIndex = index;
+            const modal = document.getElementById('photo-modal');
+            const modalImage = document.getElementById('modal-image');
+            
+            modalImage.src = photos[index].url;
+            modal.style.display = 'block';
+        }
+
+        // Fonction pour afficher la photo précédente
+        function showPreviousPhoto() {
+            if (photos.length <= 1) return;
+            
+            currentPhotoIndex = (currentPhotoIndex === 0) ? photos.length - 1 : currentPhotoIndex - 1;
+            const modalImage = document.getElementById('modal-image');
+            modalImage.src = photos[currentPhotoIndex].url;
+        }
+
+        // Fonction pour afficher la photo suivante
+        function showNextPhoto() {
+            if (photos.length <= 1) return;
+            
+            currentPhotoIndex = (currentPhotoIndex === photos.length - 1) ? 0 : currentPhotoIndex + 1;
+            const modalImage = document.getElementById('modal-image');
+            modalImage.src = photos[currentPhotoIndex].url;
+        }
+
+        // Fonction pour formater les dates
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return new Intl.DateTimeFormat('fr-FR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(date);
+        }
+
+        // Fonction pour afficher une notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.classList.add('show');
+            
+            // Masquer la notification après 3 secondes
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
