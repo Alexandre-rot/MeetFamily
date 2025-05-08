@@ -1,13 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <!-- This script injects a replit badge into the page, please feel free to remove this line -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-badge-v3.js"></script>
-  </body>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeetFamily - Accueil</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Polices Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <!-- En-tête avec photo de profil et logo -->
+    <header>
+        <div class="profile-area">
+            <img src="" alt="Photo de profil" class="profile-pic" id="profile-pic">
+        </div>
+        <div class="logo-area">
+            <h1>MeetFamily</h1>
+        </div>
+    </header>
+
+    <!-- Contenu principal - contient seulement l'image d'arrière-plan -->
+    <main>
+        <div class="welcome-container">
+            <div class="welcome-message">
+                <h2>Bienvenue dans votre espace familial</h2>
+                <p>Gérez vos réunions de famille, suivez les contributions, partagez des annonces et préservez votre histoire familiale.</p>
+                <p class="hint">Utilisez le menu défilant ci-dessous pour naviguer dans l'application.</p>
+                <div class="arrow-down">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Pied de page et navigation -->
+    <div class="footer-container">
+        <nav class="nav-band">
+            <div class="nav-buttons-container">
+                <a href="agenda.html" class="nav-button">
+                    <i class="fas fa-calendar-alt"></i> Agenda
+                </a>
+                <a href="contributions.html" class="nav-button">
+                    <i class="fas fa-hand-holding-usd"></i> Contributions
+                </a>
+                <a href="announcements.html" class="nav-button">
+                    <i class="fas fa-bullhorn"></i> Annonces
+                </a>
+                <a href="photos.html" class="nav-button">
+                    <i class="fas fa-images"></i> Photos
+                </a>
+                <a href="videos.html" class="nav-button">
+                    <i class="fas fa-video"></i> Vidéos
+                </a>
+                <a href="history.html" class="nav-button">
+                    <i class="fas fa-history"></i> Histoire Familiale
+                </a>
+            </div>
+        </nav>
+        <footer>
+            &copy; 2025 MeetFamily - Tous droits réservés
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script>
+        // Exécuter quand la page est chargée
+        document.addEventListener('DOMContentLoaded', () => {
+            // Charger le profil utilisateur (image de profil)
+            loadUserProfile();
+            
+            // Initialiser le défilement automatique de la bande de navigation
+            initNavScroll();
+        });
+
+        // La constante API_URL est déjà définie dans main.js
+
+        // Fonction pour charger le profil utilisateur
+        async function loadUserProfile() {
+            try {
+                const response = await fetch(`${API_URL}/user`);
+                if (!response.ok) throw new Error('Erreur lors du chargement du profil');
+                
+                const user = await response.json();
+                const profilePic = document.getElementById('profile-pic');
+                
+                if (user.profilePicture) {
+                    profilePic.src = user.profilePicture;
+                } else {
+                    profilePic.src = 'images/default-profile.jpg';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('profile-pic').src = 'images/default-profile.jpg';
+            }
+        }
+
+        // Fonction pour initialiser le défilement automatique de la bande de navigation
+        function initNavScroll() {
+            const navContainer = document.querySelector('.nav-buttons-container');
+            let scrollDirection = -1; // -1 vers la gauche, 1 vers la droite
+            let scrollInterval;
+            let isPaused = false;
+            
+            // Vérifier si le contenu dépasse la largeur visible
+            const needsScrolling = navContainer.scrollWidth > navContainer.clientWidth;
+            
+            if (!needsScrolling) return;
+            
+            function startScrolling() {
+                scrollInterval = setInterval(() => {
+                    if (isPaused) return;
+                    
+                    navContainer.scrollLeft += scrollDirection;
+                    
+                    // Inverser la direction si on atteint les bords
+                    if (navContainer.scrollLeft <= 0) {
+                        scrollDirection = 1; // Vers la droite
+                    } else if (navContainer.scrollLeft + navContainer.clientWidth >= navContainer.scrollWidth) {
+                        scrollDirection = -1; // Vers la gauche
+                    }
+                }, 20);
+            }
+            
+            // Mettre en pause le défilement au survol
+            navContainer.addEventListener('mouseenter', () => {
+                isPaused = true;
+            });
+            
+            navContainer.addEventListener('mouseleave', () => {
+                isPaused = false;
+            });
+            
+            // Démarrer le défilement
+            startScrolling();
+        }
+
+        // Fonction pour afficher une notification
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type === 'error' ? 'error' : ''}`;
+            notification.classList.add('show');
+            
+            // Masquer la notification après 3 secondes
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
 </html>
